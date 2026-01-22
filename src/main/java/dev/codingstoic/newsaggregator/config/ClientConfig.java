@@ -1,5 +1,6 @@
 package dev.codingstoic.newsaggregator.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
@@ -9,10 +10,11 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 @Configuration
 public class ClientConfig {
     @Bean
-    public NewsApiClient newsApiClient() {
+    public NewsApiClient newsApiClient(@Value("${news.api.key}") String apiToken) {
 
         RestClient restClient = RestClient.builder()
                 .baseUrl("https://newsapi.org")
+                .defaultHeader("X-Api-Key", apiToken)
                 .build();
         HttpServiceProxyFactory factory = HttpServiceProxyFactory
                 .builderFor(RestClientAdapter.create(restClient))
