@@ -34,7 +34,7 @@ public class NewsController {
         return newsAggregatorService
                 .collectNewsFromAllSources()
                 .stream()
-                .map(article -> (NewsResponse) new NewsResponseV2(article.title(), article.url(), article.author(), article.publishedAt(), "POSITIVE", article.source().name()))
+                .map(article -> (NewsResponse) new NewsResponseV2(article.title(), article.url(), article.author(), article.publishedAt(), calculateSentiment(article.title()), article.source().name()))
                 .toList();
     }
 
@@ -62,8 +62,19 @@ public class NewsController {
     ) {
         return newsAggregatorService.getCustomNewFeed(queryTopics, language, sortBy, from, to)
                 .parallelStream()
-                .map(article -> (NewsResponse) new NewsResponseV2(article.title(), article.url(), article.author(), article.publishedAt(), "POSITIVE", article.source().name()))
+                .map(article -> (NewsResponse) new NewsResponseV2(article.title(), article.url(), article.author(), article.publishedAt(), calculateSentiment(article.title()), article.source().name()))
                 .toList();
     }
 
+    private String calculateSentiment(String text) {
+        String lower = text.toLowerCase();
+        if (lower.contains("launch") || lower.contains("new") || lower.contains("breakthrough")) {
+            return "EXCITED";
+        } else if (lower.contains("fail") || lower.contains("crash") || lower.contains("bug")) {
+            return "CONCERNED";
+        } else if (lower.contains("spring") || lower.contains("programming")) {
+            return "JOYFUL";
+        }
+        return "NEUTRAL";
+    }
 }
