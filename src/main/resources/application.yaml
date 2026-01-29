@@ -4,6 +4,11 @@ spring:
   threads:
     virtual:
       enabled: true
+  mvc:
+    apiversion:
+      use:
+        header: X-API-VERSION
+      default: "1.0"
 
 news:
   api:

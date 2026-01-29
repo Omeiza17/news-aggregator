@@ -1,6 +1,6 @@
 package dev.codingstoic.newsaggregator.config;
 
-import dev.codingstoic.newsaggregator.dto.NewsResponse;
+import dev.codingstoic.newsaggregator.dto.NewsApiResponse;
 import dev.codingstoic.newsaggregator.dto.SortByEnum;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.service.annotation.GetExchange;
@@ -10,7 +10,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 public interface NewsApiClient {
 
     @GetExchange("/everything")
-    NewsResponse searchNews(
+    NewsApiResponse searchNews(
             @RequestParam(value = "q") String query,
             @RequestParam(value = "language", required = false, defaultValue = "en") String language,
             @RequestParam(value = "pageSize", required = false, defaultValue = "20") Integer pageSize,
@@ -20,7 +20,7 @@ public interface NewsApiClient {
     );
 
     @GetExchange("/top-headlines")
-    NewsResponse getTopHeadlines(
+    NewsApiResponse getTopHeadlines(
             @RequestParam("country") String country,
             @RequestParam("category") String category,
             @RequestParam("q") String q
