@@ -4,6 +4,8 @@ import dev.codingstoic.newsaggregator.config.NewsApiClient;
 import dev.codingstoic.newsaggregator.dto.Article;
 import dev.codingstoic.newsaggregator.dto.NewsApiResponse;
 import dev.codingstoic.newsaggregator.dto.SortByEnum;
+import dev.codingstoic.newsaggregator.dto.Source;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.micrometer.common.util.StringUtils;
 import io.micrometer.context.ContextSnapshot;
 import io.micrometer.context.ContextSnapshotFactory;
@@ -12,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -70,6 +73,7 @@ public class NewsAggregatorService {
     }
 
 
+    @CircuitBreaker(name = "news-api", fallbackMethod = "fallbackNews")
     public List<Article> getCustomNewFeed(List<String> topics, String language, String sortBy, String from, String to) {
         ContextSnapshot snapshot = snapshotFactory.captureAll();
 
@@ -95,5 +99,20 @@ public class NewsAggregatorService {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Custom feed aggregation interrupted", e);
         }
+    }
+
+    public List<Article> fallbackNews(List<String> topics, String language, String sortBy, String from, String to, Throwable t) {
+        log.error("Circuit Breaker Tripped! Returning fallback data. Reason: {}", t.getMessage());
+
+        return List.of(new Article(
+                new Source("system", "System"),
+                "Administrator",
+                "Service Temporarily Unavailable",
+                "We are unable to reach the news provider. Please try again later.",
+                "https://status.codingstoic.dev",
+                "https://placehold.co/600x400?text=System+Offline",
+                Instant.now().toString(),
+                "System Maintenance"
+        ));
     }
 }

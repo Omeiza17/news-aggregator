@@ -9,6 +9,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import dev.codingstoic.newsaggregator.service.NewsAggregatorService;
 import dev.codingstoic.newsaggregator.dto.Article;
 
+import dev.codingstoic.newsaggregator.dto.Source;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
@@ -45,9 +46,22 @@ class NewsControllerTest {
 
     @Test
     void shouldGetV2Explicitly() throws Exception {
+        when(newsAggregatorService.collectNewsFromAllSources()).thenReturn(List.of(
+                new Article(
+                        new Source("id", "source"),
+                        "author",
+                        "V2 Content",
+                        "description",
+                        "url",
+                        "urlToImage",
+                        "2023-01-01",
+                        "content"
+                )
+        ));
+
         mockMvc.perform(get("/api/news")
                 .header("X-API-VERSION", "2.0"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].title").value("V2 Content"));
+                .andExpect(jsonPath("$[0].headline").value("V2 Content"));
     }
 }
