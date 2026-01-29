@@ -2,7 +2,7 @@ package dev.codingstoic.newsaggregator.service;
 
 import dev.codingstoic.newsaggregator.config.NewsApiClient;
 import dev.codingstoic.newsaggregator.dto.Article;
-import dev.codingstoic.newsaggregator.dto.NewsResponse;
+import dev.codingstoic.newsaggregator.dto.NewsApiResponse;
 import dev.codingstoic.newsaggregator.dto.SortByEnum;
 import io.micrometer.common.util.StringUtils;
 import io.micrometer.context.ContextSnapshot;
@@ -34,15 +34,15 @@ public class NewsAggregatorService {
 
     public List<Article> collectNewsFromAllSources() {
         try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAll())) {
-            StructuredTaskScope.Subtask<NewsResponse> taskTech = scope.fork(
+            StructuredTaskScope.Subtask<NewsApiResponse> taskTech = scope.fork(
                     () -> newsApiClient.searchNews("technology", null, null, null, null, null)
             );
 
-            StructuredTaskScope.Subtask<NewsResponse> taskBusiness = scope.fork(
+            StructuredTaskScope.Subtask<NewsApiResponse> taskBusiness = scope.fork(
                     () -> newsApiClient.getTopHeadlines(DEFAULT_COUNTRY, "business", "Interest rate")
             );
 
-            StructuredTaskScope.Subtask<NewsResponse> taskAI = scope.fork(
+            StructuredTaskScope.Subtask<NewsApiResponse> taskAI = scope.fork(
                     () -> newsApiClient.searchNews("Artificial Intelligence", null, null, null, null, RELEVANCY.getValue())
             );
 
@@ -60,7 +60,7 @@ public class NewsAggregatorService {
         }
     }
 
-    private List<Article> extractArticles(StructuredTaskScope.Subtask<NewsResponse> task) {
+    private List<Article> extractArticles(StructuredTaskScope.Subtask<NewsApiResponse> task) {
         if (task.state() == StructuredTaskScope.Subtask.State.SUCCESS) {
             return task.get().articles();
         } else {
@@ -75,7 +75,7 @@ public class NewsAggregatorService {
 
         try (var scope = StructuredTaskScope.open(StructuredTaskScope.Joiner.awaitAll())) {
 
-            List<StructuredTaskScope.Subtask<NewsResponse>> searchTask = new ArrayList<>();
+            List<StructuredTaskScope.Subtask<NewsApiResponse>> searchTask = new ArrayList<>();
 
             for (var topic : topics) {
                 searchTask.add(
