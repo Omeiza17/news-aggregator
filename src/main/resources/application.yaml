@@ -35,3 +35,15 @@ management:
     export:
       otlp:
         enabled: false
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      news-api:
+        register-health-indicator: true
+        sliding-window-size: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state:
+          seconds: 10
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
