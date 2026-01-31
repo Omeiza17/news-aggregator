@@ -17,5 +17,11 @@ services:
     volumes:
       - redis-data:/data
 
+  zipkin:
+    image: openzipkin/zipkin
+    container_name: news-zipkin
+    ports:
+      - "9411:9411"
+
 volumes:
   redis-data:
