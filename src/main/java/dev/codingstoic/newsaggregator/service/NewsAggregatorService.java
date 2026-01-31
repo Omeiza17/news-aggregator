@@ -12,6 +12,7 @@ import io.micrometer.context.ContextSnapshotFactory;
 import io.micrometer.observation.annotation.Observed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -73,6 +74,7 @@ public class NewsAggregatorService {
     }
 
 
+    @Cacheable(value = "custom-feed")
     @CircuitBreaker(name = "news-api", fallbackMethod = "fallbackNews")
     public List<Article> getCustomNewFeed(List<String> topics, String language, String sortBy, String from, String to) {
         ContextSnapshot snapshot = snapshotFactory.captureAll();
