@@ -1,4 +1,11 @@
 spring:
+  cache:
+    type: redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 60s
   application:
     name: news-aggregator
   threads:
